@@ -9,22 +9,20 @@ import logging
 from cloudshell.traffic.tg_helper import get_reservation_resources, set_family_attribute
 from shellfoundry.releasetools.test_helper import create_session_from_cloudshell_config, create_command_context
 
-from src.driver import TestCenterControllerDriver
+from src.driver import AvalancheControllerDriver
 
-controller = 'localhost'
-port = '8888'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
 
-ports = ['swisscom/Module1/PG2/Port3', 'swisscom/Module1/PG2/Port4']
-attributes = {'Controller Address': controller,
-              'Controller TCP Port': port}
+ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
+attributes = {'Client Install Path', avalanche_install_path}
 
 
 class TestStcControllerDriver(unittest.TestCase):
 
     def setUp(self):
         self.session = create_session_from_cloudshell_config()
-        self.context = create_command_context(self.session, ports, 'TestCenter Controller', attributes)
-        self.driver = TestCenterControllerDriver()
+        self.context = create_command_context(self.session, ports, 'Avalanche Controller', attributes)
+        self.driver = AvalancheControllerDriver()
         self.driver.initialize(self.context)
         print self.driver.logger.handlers[0].baseFilename
         logging.basicConfig(level=logging.DEBUG)

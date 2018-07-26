@@ -11,19 +11,17 @@ from cloudshell.api.cloudshell_api import AttributeNameValue, InputNameValue
 from cloudshell.traffic.tg_helper import get_reservation_resources, set_family_attribute
 from shellfoundry.releasetools.test_helper import create_session_from_cloudshell_config, create_command_context
 
-controller = 'localhost'
-port = '8888'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
 
-ports = ['swisscom/Module1/PG2/Port3', 'swisscom/Module1/PG2/Port4']
-attributes = [AttributeNameValue('Controller Address', controller),
-              AttributeNameValue('Controller TCP Port', port)]
+ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
+attributes = [AttributeNameValue('Client Install Path', avalanche_install_path)]
 
 
 class TestStcControllerShell(unittest.TestCase):
 
     def setUp(self):
         self.session = create_session_from_cloudshell_config()
-        self.context = create_command_context(self.session, ports, 'TestCenter Controller', attributes)
+        self.context = create_command_context(self.session, ports, 'Avalanche Controller', attributes)
 
     def tearDown(self):
         reservation_id = self.context.reservation.reservation_id
@@ -33,37 +31,37 @@ class TestStcControllerShell(unittest.TestCase):
         self.session.DeleteReservation(reservation_id)
 
     def test_session_id(self):
-        session_id = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        session_id = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                                  'Service', 'get_session_id')
         print('session_id = {}'.format(session_id.Output))
-        project = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        project = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                               'Service', 'get_children',
                                               [InputNameValue('obj_ref', 'system1'),
                                                InputNameValue('child_type', 'project')])
         print('project = {}'.format(project.Output))
         project_obj = json.loads(project.Output)[0]
-        project_childs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        project_childs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                                      'Service', 'get_children',
                                                      [InputNameValue('obj_ref', project_obj)])
         print('Project-Children = {}'.format(project_childs.Output))
 
-        options = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        options = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                               'Service', 'get_children',
                                               [InputNameValue('obj_ref', 'system1'),
                                                InputNameValue('child_type', 'AutomationOptions')])
         print('AutomationOptions = {}'.format(options.Output))
         options_ref = json.loads(options.Output)[0]
-        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                                     'Service', 'get_attributes',
                                                     [InputNameValue('obj_ref', options_ref)])
         print('AutomationOptions-Attributes = {}'.format(options_attrs.Output))
 
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                     'Service', 'set_attribute',
                                     [InputNameValue('obj_ref', options_ref),
                                      InputNameValue('attr_name', 'LogLevel'),
                                      InputNameValue('attr_value', 'INFO')])
-        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                                     'Service', 'get_attributes',
                                                     [InputNameValue('obj_ref', options_ref)])
         print('AutomationOptions-Attributes = {}'.format(options_attrs.Output))
@@ -73,7 +71,7 @@ class TestStcControllerShell(unittest.TestCase):
                       'ConfigType': 'Generator',
                       'ResultType': 'GeneratorPortResults'}
 
-        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller',
+        options_attrs = self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller',
                                                     'Service', 'perform_command',
                                                     [InputNameValue('command', 'ResultsSubscribe'),
                                                      InputNameValue('parameters_json', json.dumps(parameters))])
@@ -83,29 +81,17 @@ class TestStcControllerShell(unittest.TestCase):
 
     def test_run_traffic(self):
         self._load_config(path.join(path.dirname(__file__), 'test_config.tcc'))
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
+        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
                                     'send_arp')
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
+        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
                                     'start_devices')
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
+        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
                                     'start_traffic', [InputNameValue('blocking', 'True')])
         stats = self.session.ExecuteCommand(self.context.reservation.reservation_id,
-                                            'TestCenter Controller', 'Service', 'get_statistics',
+                                            'Avalanche Controller', 'Service', 'get_statistics',
                                             [InputNameValue('view_name', 'generatorportresults'),
                                              InputNameValue('output_type', 'JSON')])
         assert(int(json.loads(stats.Output)['Port 1']['TotalFrameCount']) == 4000)
-
-    def test_run_sequencer(self):
-        self._load_config(path.join(path.dirname(__file__), 'test_sequencer.tcc'))
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
-                                    'sequencer_command', [InputNameValue('command', 'Start')])
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
-                                    'sequencer_command', [InputNameValue('command', 'Wait')])
-        stats = self.session.ExecuteCommand(self.context.reservation.reservation_id,
-                                            'TestCenter Controller', 'Service', 'get_statistics',
-                                            [InputNameValue('view_name', 'generatorportresults'),
-                                             InputNameValue('output_type', 'JSON')])
-        assert(int(json.loads(stats.Output)['Port 1']['GeneratorIpv4FrameCount']) == 8000)
 
     def _load_config(self, config):
         reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,
@@ -113,7 +99,7 @@ class TestStcControllerShell(unittest.TestCase):
                                                       'STC Chassis Shell 2G.GenericTrafficGeneratorPort')
         set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'TestCenter Controller', 'Service',
+        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
                                     'load_config', [InputNameValue('stc_config_file_name', config)])
 
 

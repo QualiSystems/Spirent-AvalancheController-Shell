@@ -10,8 +10,8 @@ from cloudshell.traffic.tg_helper import (get_reservation_resources, get_address
                                           get_family_attribute)
 
 from trafficgenerator.tgn_utils import ApiType
-from testcenter.stc_app import init_stc, StcSequencerOperation
-from testcenter.stc_statistics_view import StcStats
+from avalanche.avl_app import init_avl
+from avalanche.avl_statistics_view import AvlStats
 
 
 class StcHandler(object):
@@ -22,22 +22,20 @@ class StcHandler(object):
         logging.basicConfig(level=logging.DEBUG)
         logging.getLogger().addHandler(logging.FileHandler(self.logger.handlers[0].baseFilename))
 
-        controller = context.resource.attributes['Controller Address']
-        port = context.resource.attributes['Controller TCP Port']
-        port = int(port) if port else 8888
-        self.stc = init_stc(ApiType.rest, self.logger, rest_server=controller, rest_port=port)
-        self.stc.connect()
+        client_install_path = context.resource.attributes['Client Install Path']
+        self.avl = init_avl(self.logger, avl_install_dir=client_install_path)
+        self.avl.connect()
 
     def tearDown(self):
-        self.stc.disconnect()
+        self.avl.disconnect()
 
-    def load_config(self, context, stc_config_file_name):
+    def load_config(self, context, avl_config_file_name):
         """
-        :param stc_config_file_name: full path to STC configuration file (tcc or xml)
+        :param avl_config_file_name: full path to Avalanche configuration file (spf)
         """
 
-        self.stc.load_config(stc_config_file_name)
-        config_ports = self.stc.project.get_ports()
+        self.avl.load_config(avl_config_file_name)
+        config_ports = self.avl.project.get_ports()
 
         reservation_id = context.reservation.reservation_id
         my_api = CloudShellSessionContext(context).get_api()
@@ -61,15 +59,6 @@ class StcHandler(object):
                                 format(port, reservation_ports.keys()))
 
         self.logger.info("Port Reservation Completed")
-
-    def send_arp(self):
-        self.stc.send_arp_ns()
-
-    def start_devices(self):
-        self.stc.start_devices()
-
-    def stop_devices(self):
-        self.stc.stop_devices()
 
     def start_traffic(self, blocking):
         self.stc.clear_results()
@@ -100,11 +89,6 @@ class StcHandler(object):
             return output.getvalue().strip()
         else:
             raise Exception('Output type should be CSV/JSON - got "{}"'.format(output_type))
-
-    def sequencer_command(self, command):
-        if StcSequencerOperation[command.lower()] == StcSequencerOperation.start:
-            self.stc.clear_results()
-        self.stc.sequencer_command(StcSequencerOperation[command.lower()])
 
     def get_session_id(self):
         return self.stc.api.session_id

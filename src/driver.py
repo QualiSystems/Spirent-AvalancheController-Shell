@@ -4,7 +4,7 @@ from stc_handler import StcHandler
 from cloudshell.traffic.driver import TrafficControllerDriver
 
 
-class TestCenterControllerDriver(TrafficControllerDriver):
+class AvalancheControllerDriver(TrafficControllerDriver):
 
     def __init__(self):
         super(self.__class__, self).__init__()
