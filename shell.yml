@@ -1,0 +1,7 @@
+shell:
+  author: Yoram Shamir
+  description: Spirent TestCenter (STC) Controller
+  driver_name: TestCenterControllerDriver
+  email: yoram-s@quali.com
+  name: spirent_testcenter_controller
+  version: 1.5.1
