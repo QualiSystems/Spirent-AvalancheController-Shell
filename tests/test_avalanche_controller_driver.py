@@ -48,7 +48,7 @@ class TestAvalancheControllerDriver(unittest.TestCase):
                                                       'STC Chassis Shell 2G.GenericTrafficGeneratorPort')
         set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
-        self.driver.load_config(self.context, path.join(path.dirname(__file__), 'test_config.tcc'))
+        self.driver.load_config(self.context, path.join(path.dirname(__file__), 'test_config.spf'))
 
     def test_run_traffic(self):
         self.test_load_config()
@@ -72,13 +72,13 @@ class TestAvalancheControllerDriver(unittest.TestCase):
         set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', '')
         self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.tcc'))
+                          path.join(path.dirname(__file__), 'test_config.spf'))
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 1')
         self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.tcc'))
+                          path.join(path.dirname(__file__), 'test_config.spf'))
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port x')
         self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.tcc'))
+                          path.join(path.dirname(__file__), 'test_config.spf'))
         # cleanup
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
 

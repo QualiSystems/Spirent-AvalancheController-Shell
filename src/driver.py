@@ -14,7 +14,7 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         """ Load Avalanche configuration file and reserve ports.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param avl_config_file_name: Full path to Avalanache configuration file name - tcc or xml
+        :param avl_config_file_name: Full path to Avalanache configuration file name
         """
 
         super(self.__class__, self).load_config(context)

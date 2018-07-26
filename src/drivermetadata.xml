@@ -12,7 +12,7 @@
 
 		<Command Description="Reserve ports and load configuration" DisplayName="Load configuration" Name="load_config">
 	    	<Parameters>
-            	<Parameter Description="Full path to Avalanche configuration file name - tcc or xml" DisplayName="Avalanche config file name" Mandatory="True" Name="avl_config_file_name" Type="String" />
+            	<Parameter Description="Full path to Avalanche configuration file name" DisplayName="Avalanche config file name" Mandatory="True" Name="avl_config_file_name" Type="String" />
             </Parameters>
         </Command>
         <Command Description="Start test" DisplayName="Start Test" Name="start_test">

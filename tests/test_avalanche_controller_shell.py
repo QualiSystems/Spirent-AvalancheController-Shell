@@ -77,10 +77,10 @@ class TestAvalancheControllerShell(unittest.TestCase):
                                                      InputNameValue('parameters_json', json.dumps(parameters))])
 
     def test_load_config(self):
-        self._load_config(path.join(path.dirname(__file__), 'test_config.tcc'))
+        self._load_config(path.join(path.dirname(__file__), 'test_config.spf'))
 
     def test_run_traffic(self):
-        self._load_config(path.join(path.dirname(__file__), 'test_config.tcc'))
+        self._load_config(path.join(path.dirname(__file__), 'test_config.spf'))
         self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
                                     'send_arp')
         self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
