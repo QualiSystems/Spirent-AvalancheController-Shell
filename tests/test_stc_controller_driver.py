@@ -17,7 +17,7 @@ ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2
 attributes = {'Client Install Path', avalanche_install_path}
 
 
-class TestStcControllerDriver(unittest.TestCase):
+class TestAvalancheControllerDriver(unittest.TestCase):
 
     def setUp(self):
         self.session = create_session_from_cloudshell_config()
@@ -81,17 +81,6 @@ class TestStcControllerDriver(unittest.TestCase):
                           path.join(path.dirname(__file__), 'test_config.tcc'))
         # cleanup
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
-
-    def test_run_sequencer(self):
-        reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,
-                                                      'Generic Traffic Generator Port',
-                                                      'PerfectStorm Chassis Shell 2G.GenericTrafficGeneratorPort',
-                                                      'STC Chassis Shell 2G.GenericTrafficGeneratorPort')
-        set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
-        self.driver.load_config(self.context, path.join(path.dirname(__file__), 'test_sequencer.tcc'))
-        self.driver.sequencer_command(self.context, 'Start')
-        self.driver.sequencer_command(self.context, 'Wait')
 
 
 if __name__ == '__main__':

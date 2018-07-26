@@ -1,5 +1,5 @@
 
-from stc_handler import StcHandler
+from avl_handler import AvlHandler
 
 from cloudshell.traffic.driver import TrafficControllerDriver
 
@@ -8,79 +8,46 @@ class AvalancheControllerDriver(TrafficControllerDriver):
 
     def __init__(self):
         super(self.__class__, self).__init__()
-        self.handler = StcHandler()
+        self.handler = AvlHandler()
 
-    def load_config(self, context, stc_config_file_name):
-        """ Load STC configuration file and reserve ports.
+    def load_config(self, context, avl_config_file_name):
+        """ Load Avalanche configuration file and reserve ports.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param stc_config_file_name: Full path to STC configuration file name - tcc or xml
+        :param avl_config_file_name: Full path to Avalanache configuration file name - tcc or xml
         """
 
         super(self.__class__, self).load_config(context)
-        self.handler.load_config(context, stc_config_file_name)
-        return stc_config_file_name + ' loaded, ports reserved'
+        self.handler.load_config(context, avl_config_file_name)
+        return avl_config_file_name + ' loaded, ports reserved'
 
-    def send_arp(self, context):
-        """ Send ARP/ND for all devices and streams
-
-        :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        """
-
-        self.handler.send_arp()
-
-    def start_devices(self, context):
-        """ Start all emulations on all devices
+    def start_test(self, context, blocking):
+        """ Start test.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
+        :param blocking: True - return after test finish to run, False - return immediately.
         """
 
-        self.handler.start_devices()
-
-    def stop_devices(self, context):
-        """ Stop all emulations on all devices
-
-        :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        """
-
-        self.handler.stop_devices()
-
-    def start_traffic(self, context, blocking):
-        """ Start traffic on all ports.
-
-        :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param blocking: True - return after traffic finish to run, False - return immediately.
-        """
-
-        self.handler.start_traffic(blocking)
+        self.handler.start_test(blocking)
         return 'traffic started in {} mode'.format(blocking)
 
-    def stop_traffic(self, context):
-        """ Stop traffic on all ports.
+    def stop_test(self, context):
+        """ Stop test.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
         """
 
-        self.handler.stop_traffic()
+        self.handler.stop_test()
 
     def get_statistics(self, context, view_name, output_type):
         """ Get view statistics.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param view_name: generatorPortResults, analyzerPortResults etc.
+        :param view_name: client/server http/tcp,  etc.
         :param output_type: CSV or JSON.
         """
 
         return self.handler.get_statistics(context, view_name, output_type)
-
-    def sequencer_command(self, context, command):
-        """ Get view statistics.
-
-        :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param command: from GUI - Start/Stop/Wait, from API also available Step/Pause.
-        """
-
-        self.handler.sequencer_command(command)
 
     #
     # Parent commands are not visible so we re define them in child.
@@ -99,8 +66,8 @@ class AvalancheControllerDriver(TrafficControllerDriver):
     # Hidden commands for developers only.
     #
 
-    def get_session_id(self, context):
-        """ Returns the REST session ID.
+    def get_project_id(self, context):
+        """ Returns project ID.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
         """
@@ -111,7 +78,7 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         """ Returns all children of object.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param obj_ref: valid STC object reference.
+        :param obj_ref: valid Avalanche object reference.
         :param child_type: requested children type. If None returns all children.
         :return: list of children.
         """
@@ -119,10 +86,10 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         return self.handler.get_children(obj_ref, child_type)
 
     def get_attributes(self, context, obj_ref):
-        """ Returns all children of object.
+        """ Returns all attributes of object.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param obj_ref: valid STC object reference.
+        :param obj_ref: valid Avalanche object reference.
         :return: list of <attribute, value>.
         """
 
@@ -132,19 +99,19 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         """ Set object attribute.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param obj_ref: valid STC object reference.
-        :param attr_name: STC attribue name.
-        :param attr_value: STC attribue value.
+        :param obj_ref: valid Avalanche object reference.
+        :param attr_name: Avalanche attribue name.
+        :param attr_value: Avalanche attribue value.
         """
 
         self.handler.set_attribute(obj_ref, attr_name, attr_value)
 
-    def perform_command(self, context, command, parameters_json):
+    def perform_command(self, context, command, **parameters):
         """ Set object attribute.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param command: valid STC object reference.
-        :param parameters_json: parameters dict {name: value} as serialized json.
+        :param command: valid Avalanche object reference.
+        :param parameters: parameters dict {name: value}.
         """
 
-        return self.handler.perform_command(command, parameters_json)
+        return self.handler.perform_command(command, **parameters)

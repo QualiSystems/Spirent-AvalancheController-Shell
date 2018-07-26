@@ -9,12 +9,11 @@ from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionCo
 from cloudshell.traffic.tg_helper import (get_reservation_resources, get_address, is_blocking, attach_stats_csv,
                                           get_family_attribute)
 
-from trafficgenerator.tgn_utils import ApiType
 from avalanche.avl_app import init_avl
 from avalanche.avl_statistics_view import AvlStats
 
 
-class StcHandler(object):
+class AvlHandler(object):
 
     def initialize(self, context, logger):
 
@@ -61,15 +60,14 @@ class StcHandler(object):
         self.logger.info("Port Reservation Completed")
 
     def start_traffic(self, blocking):
-        self.stc.clear_results()
-        self.stc.start_traffic(is_blocking(blocking))
+        self.avl.project.tests.values()[0].start(is_blocking(blocking))
 
     def stop_traffic(self):
-        self.stc.stop_traffic()
+        self.avl.project.tests.values()[0].stop()
 
     def get_statistics(self, context, view_name, output_type):
 
-        stats_obj = StcStats(self.stc.project, view_name)
+        stats_obj = AvlStats(self.avl.project, view_name)
         stats_obj.read_stats()
         statistics = OrderedDict()
         for obj_name in stats_obj.statistics['topLevelName']:
@@ -90,18 +88,17 @@ class StcHandler(object):
         else:
             raise Exception('Output type should be CSV/JSON - got "{}"'.format(output_type))
 
-    def get_session_id(self):
-        return self.stc.api.session_id
+    def get_project_ref(self):
+        return self.avl.project.ref
 
     def get_children(self, obj_ref, child_type):
-        children_attribute = 'children-' + child_type if child_type else 'children'
-        return self.stc.api.ls.get(obj_ref, children_attribute).split()
+        return self.avl.api.get(obj_ref, child_type).split()
 
     def get_attributes(self, obj_ref):
-        return self.stc.api.ls.get(obj_ref)
+        return self.avl.api.get(obj_ref)
 
     def set_attribute(self, obj_ref, attr_name, attr_value):
-        return self.stc.api.ls.config(obj_ref, **{attr_name: attr_value})
+        return self.avl.api.config(obj_ref, **{attr_name: attr_value})
 
-    def perform_command(self, command, parameters_json):
-        return self.stc.api.ls.perform(command, json.loads(parameters_json))
+    def perform_command(self, command, **parameters):
+        return self.avl.api.perform(command, **parameters)

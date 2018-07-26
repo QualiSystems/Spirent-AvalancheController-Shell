@@ -17,7 +17,7 @@ ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2
 attributes = [AttributeNameValue('Client Install Path', avalanche_install_path)]
 
 
-class TestStcControllerShell(unittest.TestCase):
+class TestAvalancheControllerShell(unittest.TestCase):
 
     def setUp(self):
         self.session = create_session_from_cloudshell_config()
@@ -100,7 +100,7 @@ class TestStcControllerShell(unittest.TestCase):
         set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
         self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
-                                    'load_config', [InputNameValue('stc_config_file_name', config)])
+                                    'load_config', [InputNameValue('avl_config_file_name', config)])
 
 
 if __name__ == '__main__':
