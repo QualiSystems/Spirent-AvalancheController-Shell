@@ -11,10 +11,10 @@ from shellfoundry.releasetools.test_helper import create_session_from_cloudshell
 
 from src.driver import AvalancheControllerDriver
 
-avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.84'
 
-ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
-attributes = {'Client Install Path', avalanche_install_path}
+ports = ['swisscom/Module1/PG1/Port1', 'swisscom/Module1/PG1/Port2']
+attributes = {'Client Install Path': avalanche_install_path}
 
 
 class TestAvalancheControllerDriver(unittest.TestCase):
@@ -33,6 +33,7 @@ class TestAvalancheControllerDriver(unittest.TestCase):
         self.session.EndReservation(self.context.reservation.reservation_id)
 
     def test_init(self):
+        print('init')
         pass
 
     def test_get_set(self):

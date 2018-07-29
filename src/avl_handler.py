@@ -5,6 +5,7 @@ import io
 from collections import OrderedDict
 import logging
 
+from trafficgenerator.tgn_tcl import tcl_str
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.traffic.tg_helper import (get_reservation_resources, get_address, is_blocking, attach_stats_csv,
                                           get_family_attribute)
@@ -22,7 +23,8 @@ class AvlHandler(object):
         logging.getLogger().addHandler(logging.FileHandler(self.logger.handlers[0].baseFilename))
 
         client_install_path = context.resource.attributes['Client Install Path']
-        self.avl = init_avl(self.logger, avl_install_dir=client_install_path)
+        tcl_lib_install_dir = 'E:/Tcl/Tcl8532/lib'
+        self.avl = init_avl(self.logger, tcl_lib_install_dir=tcl_lib_install_dir, avl_install_dir=client_install_path)
         self.avl.connect()
 
     def tearDown(self):
