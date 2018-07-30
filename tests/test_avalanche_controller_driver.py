@@ -5,15 +5,16 @@ from os import path
 import sys
 import unittest
 import logging
+import json
 
 from cloudshell.traffic.tg_helper import get_reservation_resources, set_family_attribute
 from shellfoundry.releasetools.test_helper import create_session_from_cloudshell_config, create_command_context
 
 from src.driver import AvalancheControllerDriver
 
-avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.84'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
 
-ports = ['swisscom/Module1/PG1/Port1', 'swisscom/Module1/PG1/Port2']
+ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
 attributes = {'Client Install Path': avalanche_install_path}
 
 
@@ -33,7 +34,6 @@ class TestAvalancheControllerDriver(unittest.TestCase):
         self.session.EndReservation(self.context.reservation.reservation_id)
 
     def test_init(self):
-        print('init')
         pass
 
     def test_get_set(self):
@@ -47,22 +47,15 @@ class TestAvalancheControllerDriver(unittest.TestCase):
                                                       'Generic Traffic Generator Port',
                                                       'PerfectStorm Chassis Shell 2G.GenericTrafficGeneratorPort',
                                                       'STC Chassis Shell 2G.GenericTrafficGeneratorPort')
-        set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
+        set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Client 1')
+        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Server 1')
         self.driver.load_config(self.context, path.join(path.dirname(__file__), 'test_config.spf'))
 
     def test_run_traffic(self):
         self.test_load_config()
-        self.driver.send_arp(self.context)
-        self.driver.start_traffic(self.context, 'False')
-        self.driver.stop_traffic(self.context)
-        stats = self.driver.get_statistics(self.context, 'generatorportresults', 'JSON')
-        assert(int(stats['Port 1']['TotalFrameCount']) <= 4000)
-        self.driver.start_traffic(self.context, 'True')
-        stats = self.driver.get_statistics(self.context, 'generatorportresults', 'JSON')
-        assert(int(stats['Port 1']['TotalFrameCount']) == 4000)
-        stats = self.driver.get_statistics(self.context, 'generatorportresults', 'csv')
-        print stats
+        self.driver.start_test(self.context, 'True')
+        stats = self.driver.get_statistics(self.context, 'client http', 'JSON')
+        print(json.dumps(stats, indent=2))
 
     def negative_tests(self):
         reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,
