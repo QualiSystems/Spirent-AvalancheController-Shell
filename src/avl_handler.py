@@ -1,11 +1,10 @@
 
+from os import path
 import json
 import csv
 import io
-from collections import OrderedDict
 import logging
 
-from trafficgenerator.tgn_tcl import tcl_str
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.traffic.tg_helper import (get_reservation_resources, get_address, is_blocking, attach_stats_csv,
                                           get_family_attribute)
@@ -23,20 +22,20 @@ class AvlHandler(object):
         logging.getLogger().addHandler(logging.FileHandler(self.logger.handlers[0].baseFilename))
 
         client_install_path = context.resource.attributes['Client Install Path']
-        tcl_lib_install_dir = 'C:/CS-Yoram/Tcl/lib'
-        self.avl = init_avl(self.logger, tcl_lib_install_dir=tcl_lib_install_dir, avl_install_dir=client_install_path)
+        tcllib_install_path = path.pardir(context.resource.attributes['Tcllib Install Path'])
+        self.avl = init_avl(self.logger, tcl_lib_install_dir=tcllib_install_path, avl_install_dir=client_install_path)
         self.avl.connect()
 
     def tearDown(self):
         self.avl.disconnect()
 
-    def load_config(self, context, avl_config_file_name):
-        """
-        :param avl_config_file_name: full path to Avalanche configuration file (spf)
-        """
+    def load_config(self, context, avl_config_file_name, avl_test_name):
 
         self.avl.load_config(avl_config_file_name)
-        self.test = self.avl.project.tests['Test']
+        if avl_test_name:
+            self.test = self.avl.project.tests[avl_test_name]
+        else:
+            self.test = self.avl.project.tests.values()[0]
 
         reservation_id = context.reservation.reservation_id
         my_api = CloudShellSessionContext(context).get_api()
@@ -55,18 +54,20 @@ class AvlHandler(object):
         for index, association in self.test.client.associations.items():
             if index in reservation_ports['client']:
                 address = get_address(reservation_ports['client'][index])
-                self.logger.debug('client association {} will be reserved on Physical location {}'.format(index, address))
+                self.logger.debug('client association {} will be reserved on Physical location {}'.
+                                  format(index, address))
                 locations.append(address)
-                self.test.client.associations[index].interface.set_port(address)
+                association.interface.set_port(address)
             else:
                 self._association_not_found('client', index, reservation_ports['client'])
 
         for index, association in self.test.server.associations.items():
             if index in reservation_ports['server']:
                 address = get_address(reservation_ports['server'][index])
-                self.logger.debug('server association {} will be reserved on Physical location {}'.format(index, address))
+                self.logger.debug('server association {} will be reserved on Physical location {}'.
+                                  format(index, address))
                 locations.append(address)
-                self.test.server.associations[index].interface.set_port(address)
+                association.interface.set_port(address)
             else:
                 self._association_not_found('server', index, reservation_ports['server'])
 

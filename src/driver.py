@@ -10,15 +10,16 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         super(self.__class__, self).__init__()
         self.handler = AvlHandler()
 
-    def load_config(self, context, avl_config_file_name):
+    def load_config(self, context, avl_config_file_name, avl_test_name):
         """ Load Avalanche configuration file and reserve ports.
 
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
-        :param avl_config_file_name: Full path to Avalanache configuration file name
+        :param avl_config_file_name: Full path to Avalanche configuration file name
+        :param avl_test_name: Avalanche test name within configuration. If empty first test will be used.
         """
 
         super(self.__class__, self).load_config(context)
-        self.handler.load_config(context, avl_config_file_name)
+        self.handler.load_config(context, avl_config_file_name, avl_test_name)
         return avl_config_file_name + ' loaded, ports reserved'
 
     def start_test(self, context, blocking):
@@ -72,7 +73,7 @@ class AvalancheControllerDriver(TrafficControllerDriver):
         :type context: cloudshell.shell.core.driver_context.ResourceRemoteCommandContext
         """
 
-        return self.handler.get_session_id()
+        return self.handler.get_project_id()
 
     def get_children(self, context, obj_ref, child_type=''):
         """ Returns all children of object.

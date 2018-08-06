@@ -26,6 +26,12 @@
                 <Rule Name="Configuration"/>
             </Rules>
         </AttributeInfo>
+    	<AttributeInfo Name="Tcllib Install Path" Type="String" DefaultValue="" IsReadOnly="false"
+    				   Description="The path to Tcllib installation. For example 'C:/Tcl/lib/Tcllib/Tcllib1.16'.">
+      		<Rules>
+        		<Rule Name="Configuration" />
+      		</Rules>
+    	</AttributeInfo>
         <AttributeInfo Name="User" Type="String" DefaultValue="" IsReadOnly="false"
          			   Description="">
             <Rules>
