@@ -22,7 +22,7 @@ class AvlHandler(object):
         logging.getLogger().addHandler(logging.FileHandler(self.logger.handlers[0].baseFilename))
 
         client_install_path = context.resource.attributes['Client Install Path']
-        tcllib_install_path = path.pardir(context.resource.attributes['Tcllib Install Path'])
+        tcllib_install_path = path.dirname(context.resource.attributes['Tcllib Install Path'])
         self.avl = init_avl(self.logger, tcl_lib_install_dir=tcllib_install_path, avl_install_dir=client_install_path)
         self.avl.connect()
 
@@ -106,12 +106,13 @@ class AvlHandler(object):
             statistics_str = json.dumps(statistics, indent=4, sort_keys=True, ensure_ascii=False)
             return json.loads(statistics_str)
         elif output_type.strip().lower() == 'csv':
-            captions = statistics[stats_obj.statistics['topLevelName'][0]].keys()
+            captions = ['timestamp'] + statistics['0'].keys()
             output = io.BytesIO()
             w = csv.DictWriter(output, captions)
             w.writeheader()
-            for obj_name in statistics:
-                w.writerow(statistics[obj_name])
+            for timestamp, stats in statistics.items():
+                stats.update({'timestamp': timestamp})
+                w.writerow(stats)
             attach_stats_csv(context, self.logger, view_name, output.getvalue().strip())
             return output.getvalue().strip()
         else:
