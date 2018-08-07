@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from os import path
-import sys
-import unittest
 import logging
 import json
 import time
@@ -13,17 +11,17 @@ from shellfoundry.releasetools.test_helper import create_session_from_cloudshell
 
 from src.driver import AvalancheControllerDriver
 
-avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
-tcllib_install_path = 'C:/CS-Yoram/Tcl/lib/Tcllib1.16'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.84'
+tcllib_install_path = 'E:/Tcl/Tcl8532/lib/Tcllib1.16'
 
-ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
+ports = ['swisscom/Module1/PG1/Port1', 'swisscom/Module1/PG1/Port2']
 attributes = {'Client Install Path': avalanche_install_path,
               'Tcllib Install Path': tcllib_install_path}
 
 
-class TestAvalancheControllerDriver(unittest.TestCase):
+class TestAvalancheControllerDriver(object):
 
-    def setUp(self):
+    def setup(self):
         self.session = create_session_from_cloudshell_config()
         self.context = create_command_context(self.session, ports, 'Avalanche Controller', attributes)
         self.driver = AvalancheControllerDriver()
@@ -32,7 +30,7 @@ class TestAvalancheControllerDriver(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
         logging.getLogger().addHandler(logging.FileHandler(self.driver.logger.handlers[0].baseFilename))
 
-    def tearDown(self):
+    def teardown(self):
         self.driver.cleanup()
         self.session.EndReservation(self.context.reservation.reservation_id)
 
@@ -40,10 +38,17 @@ class TestAvalancheControllerDriver(unittest.TestCase):
         pass
 
     def test_get_set(self):
-        print('session_id = {}'.format(self.driver.get_session_id(self.context)))
-        project = self.driver.get_children(self.context, 'system1', 'project')[0]
-        print('project = {}'.format(project))
-        print('all children = {}'.format(self.driver.get_children(self.context, 'system1')))
+        self.test_load_config()
+        project_ref = self.driver.get_project_id(self.context)
+        print('project ref = {}'.format(project_ref))
+        tests = self.driver.get_children(self.context, project_ref, 'tests')
+        print(tests)
+        attributes = self.driver.get_attributes(self.context, project_ref)
+        print(attributes)
+        print(attributes['name'])
+        self.driver.set_attribute(self.context, project_ref, 'name', 'NewName')
+        attributes = self.driver.get_attributes(self.context, project_ref)
+        print(attributes['name'])
 
     def test_load_config(self):
         reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,
@@ -81,7 +86,3 @@ class TestAvalancheControllerDriver(unittest.TestCase):
                           path.join(path.dirname(__file__), 'test_config.spf'))
         # cleanup
         set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')
-
-
-if __name__ == '__main__':
-    sys.exit(unittest.main())

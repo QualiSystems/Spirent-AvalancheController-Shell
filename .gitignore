@@ -64,3 +64,6 @@ target/
 .settings/*
 .pydevproject
 .idea
+
+.settings
+.pytest_cache

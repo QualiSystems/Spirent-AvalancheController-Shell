@@ -83,6 +83,8 @@ class AvlHandler(object):
         chassis_list = []
         for location in locations:
             ip, module, port = location.split('/')
+            if ip.lower() == 'offline':
+                continue
             chassis = self.avl.hw.get_chassis(ip)
             if chassis not in chassis_list:
                 chassis.get_inventory()
@@ -118,11 +120,11 @@ class AvlHandler(object):
         else:
             raise Exception('Output type should be CSV/JSON - got "{}"'.format(output_type))
 
-    def get_project_ref(self):
+    def get_project_id(self):
         return self.avl.project.ref
 
     def get_children(self, obj_ref, child_type):
-        return self.avl.api.get(obj_ref, child_type).split()
+        return self.avl.api.get(obj_ref, child_type)
 
     def get_attributes(self, obj_ref):
         return self.avl.api.get(obj_ref)
