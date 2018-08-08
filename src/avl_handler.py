@@ -124,7 +124,7 @@ class AvlHandler(object):
         return self.avl.project.ref
 
     def get_children(self, obj_ref, child_type):
-        return self.avl.api.get(obj_ref, child_type)
+        return self.avl.api.getList(obj_ref, child_type)
 
     def get_attributes(self, obj_ref):
         return self.avl.api.get(obj_ref)

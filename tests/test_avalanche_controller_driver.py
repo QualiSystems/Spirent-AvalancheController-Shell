@@ -67,22 +67,3 @@ class TestAvalancheControllerDriver(object):
         print(json.dumps(stats, indent=2))
         stats = self.driver.get_statistics(self.context, 'client http', 'CSV')
         print(stats)
-
-    def negative_tests(self):
-        reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,
-                                                      'Generic Traffic Generator Port',
-                                                      'PerfectStorm Chassis Shell 2G.GenericTrafficGeneratorPort',
-                                                      'STC Chassis Shell 2G.GenericTrafficGeneratorPort')
-        assert(len(reservation_ports) == 2)
-        set_family_attribute(self.session, reservation_ports[0], 'Logical Name', 'Port 1')
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', '')
-        self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.spf'))
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 1')
-        self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.spf'))
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port x')
-        self.assertRaises(Exception, self.driver.load_config, self.context,
-                          path.join(path.dirname(__file__), 'test_config.spf'))
-        # cleanup
-        set_family_attribute(self.session, reservation_ports[1], 'Logical Name', 'Port 2')

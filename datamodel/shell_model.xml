@@ -9,6 +9,9 @@
         		<AttachedAttribute Name="Client Install Path" IsOverridable="true" IsLocal="true" UserInput="true">
             		<AllowedValues />
           		</AttachedAttribute>
+        		<AttachedAttribute Name="Tcllib Install Path" IsOverridable="true" IsLocal="true" UserInput="true">
+            		<AllowedValues />
+          		</AttachedAttribute>
 			</AttachedAttributes>
             <Drivers>
                 <DriverName>AvalancheControllerDriver</DriverName>
