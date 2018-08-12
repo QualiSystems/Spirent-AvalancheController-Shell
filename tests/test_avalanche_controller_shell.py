@@ -9,10 +9,10 @@ from cloudshell.api.cloudshell_api import AttributeNameValue, InputNameValue
 from cloudshell.traffic.tg_helper import get_reservation_resources, set_family_attribute
 from shellfoundry.releasetools.test_helper import create_session_from_cloudshell_config, create_command_context
 
-avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.84'
-tcllib_install_path = 'E:/Tcl/Tcl8532/lib/Tcllib1.16'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
+tcllib_install_path = 'c:/CS-Yoram/Tcl/lib/Tcllib1.16'
 
-ports = ['swisscom/Module1/PG1/Port1', 'swisscom/Module1/PG1/Port2']
+ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
 attributes = [AttributeNameValue('Client Install Path', avalanche_install_path),
               AttributeNameValue('Tcllib Install Path', tcllib_install_path)]
 
@@ -58,16 +58,13 @@ class TestAvalancheControllerShell(object):
     def test_run_traffic(self):
         self._load_config(path.join(path.dirname(__file__), 'test_config.spf'))
         self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
-                                    'send_arp')
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
-                                    'start_devices')
-        self.session.ExecuteCommand(self.context.reservation.reservation_id, 'Avalanche Controller', 'Service',
-                                    'start_traffic', [InputNameValue('blocking', 'True')])
+                                    'start_test', [InputNameValue('blocking', 'True')])
+        time.sleep(4)
         stats = self.session.ExecuteCommand(self.context.reservation.reservation_id,
                                             'Avalanche Controller', 'Service', 'get_statistics',
-                                            [InputNameValue('view_name', 'generatorportresults'),
-                                             InputNameValue('output_type', 'JSON')])
-        assert(int(json.loads(stats.Output)['Port 1']['TotalFrameCount']) == 4000)
+                                            [InputNameValue('view_name', 'client http'),
+                                             InputNameValue('output_type', 'JSON')]).Output
+        print(json.dumps(stats, indent=2))
 
     def _load_config(self, config):
         reservation_ports = get_reservation_resources(self.session, self.context.reservation.reservation_id,

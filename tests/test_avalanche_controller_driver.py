@@ -11,10 +11,10 @@ from shellfoundry.releasetools.test_helper import create_session_from_cloudshell
 
 from src.driver import AvalancheControllerDriver
 
-avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.84'
-tcllib_install_path = 'E:/Tcl/Tcl8532/lib/Tcllib1.16'
+avalanche_install_path = 'C:/Program Files (x86)/Spirent Communications/Spirent TestCenter 4.69'
+tcllib_install_path = 'c:/CS-Yoram/Tcl/lib/Tcllib1.16'
 
-ports = ['swisscom/Module1/PG1/Port1', 'swisscom/Module1/PG1/Port2']
+ports = ['yoram-av-as-stc/Module1/PG1/Port1', 'yoram-av-as-stc/Module1/PG1/Port2']
 attributes = {'Client Install Path': avalanche_install_path,
               'Tcllib Install Path': tcllib_install_path}
 
